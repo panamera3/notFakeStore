@@ -25,12 +25,11 @@ export default defineConfig({
       component: './Catalog',
     },
     {
-        name: 'Корзина',
-        path: '/',
-        component: './Home',
+      name: 'Корзина',
+      path: '/',
+      component: './Home',
     },
   ],
   npmClient: 'npm',
-  locale: { default: "ru-RU", antd: true },
+  locale: { default: 'ru-RU', antd: true },
 });
-

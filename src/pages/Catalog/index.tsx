@@ -1,10 +1,11 @@
 import { ProCard } from '@ant-design/pro-components';
-import { Space, Button, Pagination, InputNumber   } from 'antd';
+import { Space, Button, Pagination, InputNumber, Title, message } from 'antd';
 import {
   EditOutlined,
   EllipsisOutlined,
   SettingOutlined,
   StarOutlined,
+  StarFilled,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
 import styles from './index.less';
@@ -16,14 +17,16 @@ export default () => {
   const [products, setProducts] = React.useState<Product[]>([]);
   request('https://fakestoreapi.com/products').then((res) => setProducts(res));
 
-  const [pageSize, setPageSize] = React.useState(5);
+  const [pageSize, setPageSize] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(1);
-/*
+  const favourites = false;
+
   React.useEffect(() => {
     console.log(pageSize, currentPage);
+    message.success('Товар был добавлен в корзину');
   }, [pageSize, currentPage]);
-*/
-const onChange = (value: number) => {
+
+  const onChange = (value: number) => {
     console.log('changed', value);
   };
   return (
@@ -34,6 +37,7 @@ const onChange = (value: number) => {
           flexDirection: 'column',
         }}
       >
+        <></>
         <Space
           style={{
             display: 'flex',
@@ -52,15 +56,35 @@ const onChange = (value: number) => {
             .map((product) => {
               return (
                 <ProCard
-                  style={{ maxWidth: 300 }}
-                  title={product.title}
+                  onClick={() => console.log('KJFUHDJKL')}
+                  style={{ maxWidth: 300, textAlign: 'center' }}
+                  title={
+                    <>
+                      <p>{product.title}</p>
+                      <p
+                        style={{
+                          textAlign: 'left',
+                          color: 'gray',
+                          fontWeight: 400,
+                        }}
+                      >
+                        {product.category}
+                      </p>
+                    </>
+                  }
                   bordered
                   actions={[
                     <Button onClick={() => console.log('wow')}>
-                      <StarOutlined />
+                      {favourites && <StarFilled />}
+                      {!favourites && <StarOutlined />}
                     </Button>,
-                    <InputNumber controls min={0} defaultValue={0} onChange={onChange} />,
-                    <Button onClick={() => console.log('wow')}>
+                    <InputNumber
+                      controls={true}
+                      min={0}
+                      defaultValue={0}
+                      onChange={onChange}
+                    />,
+                    <Button onClick={() => console.log('mu')}>
                       <ShoppingCartOutlined />
                     </Button>,
                   ]}
@@ -70,7 +94,7 @@ const onChange = (value: number) => {
                   </div>
                   <div>
                     <p>{product.description}</p>
-                    <p>{product.price}$</p>
+                    <p style={{ fontWeight: 'bold' }}>Цена: {product.price}$</p>
                   </div>
                 </ProCard>
               );

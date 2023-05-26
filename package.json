@@ -14,7 +14,7 @@
     "@ant-design/icons": "^4.7.0",
     "@ant-design/pro-components": "^2.4.16",
     "@umijs/max": "^4.0.24",
-    "antd": "^4.20.7",
+    "antd": "^5.5.1",
     "umi-request": "^1.4.0"
   },
   "devDependencies": {
