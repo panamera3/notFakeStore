@@ -1,5 +1,13 @@
 import { ProCard } from '@ant-design/pro-components';
-import { Space, Button, Pagination, InputNumber, Title, message } from 'antd';
+import {
+  Space,
+  Button,
+  Pagination,
+  InputNumber,
+  Title,
+  message,
+  Typography,
+} from 'antd';
 import {
   EditOutlined,
   EllipsisOutlined,
@@ -17,7 +25,7 @@ export default () => {
   const [products, setProducts] = React.useState<Product[]>([]);
   request('https://fakestoreapi.com/products').then((res) => setProducts(res));
 
-  const [pageSize, setPageSize] = React.useState(10);
+  const [pageSize, setPageSize] = React.useState(20);
   const [currentPage, setCurrentPage] = React.useState(1);
   const favourites = false;
 
@@ -26,7 +34,7 @@ export default () => {
     message.success('Товар был добавлен в корзину');
   }, [pageSize, currentPage]);
 
-  const onChange = (value: number) => {
+  const onChange = (value: number | null) => {
     console.log('changed', value);
   };
   return (
@@ -56,46 +64,59 @@ export default () => {
             .map((product) => {
               return (
                 <ProCard
-                  onClick={() => console.log('KJFUHDJKL')}
-                  style={{ maxWidth: 300, textAlign: 'center' }}
-                  title={
-                    <>
-                      <p>{product.title}</p>
-                      <p
-                        style={{
-                          textAlign: 'left',
-                          color: 'gray',
-                          fontWeight: 400,
-                        }}
-                      >
-                        {product.category}
-                      </p>
-                    </>
-                  }
+                  style={{
+                    maxWidth: 300,
+                    textAlign: 'center',
+                    height: '40rem',
+                  }}
                   bordered
-                  actions={[
+                >
+                  <Space direction="vertical" style={{ height: '5rem' }}>
+                    <Typography.Paragraph>{product.title}</Typography.Paragraph>
+                    <Typography.Paragraph
+                      style={{
+                        textAlign: 'left',
+                        color: 'gray',
+                        fontWeight: 400,
+                      }}
+                    >
+                      {product.category}
+                    </Typography.Paragraph>
+                  </Space>
+                  <Space direction="vertical">
+                    <img
+                      src={product.image}
+                      height={'150rem'}
+                      style={{ maxWidth: '100%' }}
+                    />
+                    <Space>
+                      <Typography.Paragraph
+                        style={{ overflowY: 'auto', maxHeight: '15rem' }}
+                      >
+                        {product.description}
+                      </Typography.Paragraph>
+                    </Space>
+                    <Typography.Paragraph style={{ fontWeight: 'bold', position: 'absolute', bottom: 30, left: '35%' }}>Цена: {product.price}$</Typography.Paragraph>
+                  </Space>
+                  <Space
+                    style={{ position: 'absolute', bottom: 10, left: '20%' }}
+                  >
                     <Button onClick={() => console.log('wow')}>
                       {favourites && <StarFilled />}
                       {!favourites && <StarOutlined />}
-                    </Button>,
-                    <InputNumber
-                      controls={true}
-                      min={0}
-                      defaultValue={0}
-                      onChange={onChange}
-                    />,
-                    <Button onClick={() => console.log('mu')}>
-                      <ShoppingCartOutlined />
-                    </Button>,
-                  ]}
-                >
-                  <div>
-                    <img src={product.image} width={'100%'} />
-                  </div>
-                  <div>
-                    <p>{product.description}</p>
-                    <p style={{ fontWeight: 'bold' }}>Цена: {product.price}$</p>
-                  </div>
+                    </Button>
+                    <Space.Compact>
+                      <InputNumber
+                        controls={true}
+                        min={0}
+                        defaultValue={0}
+                        onChange={onChange}
+                      />
+                      <Button onClick={() => console.log('mu')}>
+                        <ShoppingCartOutlined />
+                      </Button>
+                    </Space.Compact>
+                  </Space>
                 </ProCard>
               );
             })}
