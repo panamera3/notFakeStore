@@ -1,10 +1,13 @@
-import { ProCard } from '@ant-design/pro-components';
+import {
+  ProCard,
+  ProFormSelect,
+  ProFormText,
+} from '@ant-design/pro-components';
 import {
   Space,
   Button,
   Pagination,
   InputNumber,
-  Title,
   message,
   Typography,
 } from 'antd';
@@ -23,29 +26,110 @@ import React from 'react';
 
 export default () => {
   const [products, setProducts] = React.useState<Product[]>([]);
-  request('https://fakestoreapi.com/products').then((res) => setProducts(res));
+  const [favourites, setFavourites] = React.useState<Number[]>([]);
+  const [cartItems, setCartItems] = React.useState<Number[]>([]);
 
-  const [pageSize, setPageSize] = React.useState(20);
+  const [pageSize, setPageSize] = React.useState(5);
   const [currentPage, setCurrentPage] = React.useState(1);
-  const favourites = false;
+
+  //message.success('Товар был добавлен в корзину');
 
   React.useEffect(() => {
-    console.log(pageSize, currentPage);
-    message.success('Товар был добавлен в корзину');
-  }, [pageSize, currentPage]);
+    let favFromLocal = localStorage.getItem('favourites');
+    let favParsed = JSON.parse(favFromLocal) as Number[];
+    setFavourites(favourites.length == 0 ? favParsed : favourites);
+  }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem('favourites', JSON.stringify(favourites));
+  }, [favourites]);
+
+  React.useEffect(() => {
+    request('https://fakestoreapi.com/products').then((res) =>
+      setProducts(res),
+    );
+  }, []);
+
+  const containsFavourite = (id: number): boolean => {
+    return favourites.includes(id);
+  };
+
+  const setFavourite = (id: number): void => {
+    if (favourites.includes(id)) {
+      setFavourites(favourites.filter((favourite) => favourite != id));
+    } else {
+      setFavourites([...favourites, id]);
+    }
+  };
+
+  const selectChangeHandler = (values: String[]) => {
+    if (values.length != 0) {
+      let allProducts: Product[] = [];
+      values.forEach((c) =>
+        request(`https://fakestoreapi.com/products/category/${c}`).then(
+          (res) => {
+            allProducts = [...res, ...allProducts];
+            setProducts(allProducts);
+          },
+        ),
+      );
+      return;
+    }
+    request('https://fakestoreapi.com/products').then((res) =>
+      setProducts(res),
+    );
+  };
+
+  const searchChangeHandler = (value) => {
+    console.log(value);
+  };
 
   const onChange = (value: number | null) => {
     console.log('changed', value);
   };
+
   return (
     <>
+      <Space>
+        <ProFormSelect
+          name="select-multiple"
+          style={{ width: '20rem' }}
+          label="Категории: "
+          fieldProps={{
+            mode: 'multiple',
+          }}
+          request={async () => {
+            let categs = (
+              (await request(
+                'https://fakestoreapi.com/products/categories',
+              )) as String[]
+            ).map((item) => ({
+              label: item,
+              value: item,
+            }));
+            return categs;
+          }}
+          placeholder="Выберите категории"
+          rules={[
+            {
+              type: 'array',
+            },
+          ]}
+          onChange={selectChangeHandler}
+        />
+        <ProFormText
+          name="text"
+          label="Поиск"
+          placeholder="Я ищу..."
+          onChange={searchChangeHandler}
+        />
+      </Space>
       <Space
         style={{
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        <></>
         <Space
           style={{
             display: 'flex',
@@ -72,7 +156,13 @@ export default () => {
                   bordered
                 >
                   <Space direction="vertical" style={{ height: '5rem' }}>
-                    <Typography.Paragraph>{product.title}</Typography.Paragraph>
+                    <Typography.Paragraph
+                      style={{
+                        fontWeight: 600,
+                      }}
+                    >
+                      {product.title}
+                    </Typography.Paragraph>
                     <Typography.Paragraph
                       style={{
                         textAlign: 'left',
@@ -83,7 +173,7 @@ export default () => {
                       {product.category}
                     </Typography.Paragraph>
                   </Space>
-                  <Space direction="vertical">
+                  <Space direction="vertical" style={{ marginTop: 50 }}>
                     <img
                       src={product.image}
                       height={'150rem'}
@@ -96,14 +186,23 @@ export default () => {
                         {product.description}
                       </Typography.Paragraph>
                     </Space>
-                    <Typography.Paragraph style={{ fontWeight: 'bold', position: 'absolute', bottom: 30, left: '35%' }}>Цена: {product.price}$</Typography.Paragraph>
+                    <Typography.Paragraph
+                      style={{
+                        fontWeight: 'bold',
+                        position: 'absolute',
+                        bottom: 30,
+                        left: '35%',
+                      }}
+                    >
+                      Цена: {product.price}$
+                    </Typography.Paragraph>
                   </Space>
                   <Space
                     style={{ position: 'absolute', bottom: 10, left: '20%' }}
                   >
-                    <Button onClick={() => console.log('wow')}>
-                      {favourites && <StarFilled />}
-                      {!favourites && <StarOutlined />}
+                    <Button onClick={() => setFavourite(product.id)}>
+                      {containsFavourite(product.id) && <StarFilled />}
+                      {!containsFavourite(product.id) && <StarOutlined />}
                     </Button>
                     <Space.Compact>
                       <InputNumber
