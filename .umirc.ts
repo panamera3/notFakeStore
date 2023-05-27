@@ -21,8 +21,12 @@ export default defineConfig({
     },
     {
       name: 'Каталог товаров',
-      path: '/catalog',
+      path: '/catalog/index',
       component: './Catalog',
+    },
+    {
+      path: '/catalog/:id',
+      component: './Product/[id]',
     },
     {
       name: 'Корзина',
