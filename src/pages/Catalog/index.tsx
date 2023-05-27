@@ -2,6 +2,7 @@ import {
   ProCard,
   ProFormSelect,
   ProFormText,
+  ProForm,
 } from '@ant-design/pro-components';
 import {
   Space,
@@ -12,9 +13,6 @@ import {
   Typography,
 } from 'antd';
 import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
   StarOutlined,
   StarFilled,
   ShoppingCartOutlined,
@@ -29,14 +27,14 @@ export default () => {
   const [favourites, setFavourites] = React.useState<Number[]>([]);
   const [cartItems, setCartItems] = React.useState<Number[]>([]);
 
-  const [pageSize, setPageSize] = React.useState(5);
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState<Number>(5);
+  const [currentPage, setCurrentPage] = React.useState<Number>(1);
 
   //message.success('Товар был добавлен в корзину');
 
   React.useEffect(() => {
-    let favFromLocal = localStorage.getItem('favourites');
-    let favParsed = JSON.parse(favFromLocal) as Number[];
+    let favFromLocal: string = localStorage.getItem('favourites');
+    let favParsed: Number[] = JSON.parse(favFromLocal) as Number[];
     setFavourites(favourites.length == 0 ? favParsed : favourites);
   }, []);
 
@@ -80,8 +78,24 @@ export default () => {
     );
   };
 
-  const searchChangeHandler = (value) => {
-    console.log(value);
+  const searchChangeHandler = (value: Object) => {
+    if (value.text.length != 0) {
+      let filtredProducts = products.filter(
+        (p) => p.title.toLowerCase().indexOf(value.text) !== -1,
+      );
+      if (filtredProducts.length != 0) {
+        setProducts(filtredProducts);
+        return;
+      }
+      message.error('Ни одного подходящего предмета не было найдено.');
+      request('https://fakestoreapi.com/products').then((res) =>
+        setProducts(res),
+      );
+      return;
+    }
+    request('https://fakestoreapi.com/products').then((res) =>
+      setProducts(res),
+    );
   };
 
   const onChange = (value: number | null) => {
@@ -117,12 +131,9 @@ export default () => {
           ]}
           onChange={selectChangeHandler}
         />
-        <ProFormText
-          name="text"
-          label="Поиск"
-          placeholder="Я ищу..."
-          onChange={searchChangeHandler}
-        />
+        <ProForm onValuesChange={searchChangeHandler}>
+          <ProFormText name="text" label="Поиск" placeholder="Я ищу..." />
+        </ProForm>
       </Space>
       <Space
         style={{
