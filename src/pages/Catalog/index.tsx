@@ -3,6 +3,7 @@ import {
   ProFormSelect,
   ProFormText,
   ProFormCheckbox,
+  ProFormRadio,
 } from '@ant-design/pro-components';
 import {
   Space,
@@ -11,6 +12,7 @@ import {
   InputNumber,
   message,
   Typography,
+  Cascader,
 } from 'antd';
 import {
   StarOutlined,
@@ -168,6 +170,11 @@ export default () => {
           name="checkbox"
           label="Избранное"
           fieldProps={{ onChange: checkChangeHandler, checked: isFavourite }}
+        />
+        <Cascader
+          options={sortOptions}
+          onChange={onChange}
+          placeholder="Please select"
         />
       </Space>
       <Space

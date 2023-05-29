@@ -31,7 +31,7 @@ export default defineConfig({
     {
       name: 'Корзина',
       path: '/',
-      component: './Home',
+      component: './Cart',
     },
   ],
   npmClient: 'npm',
