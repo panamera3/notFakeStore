@@ -25,15 +25,17 @@ import { history } from '@umijs/max';
 
 export default () => {
   const [products, setProducts] = React.useState<Product[]>([]);
+  const [constProducts, setConstProducts] = React.useState<Product[]>([]);
   const [favourites, setFavourites] = React.useState<number[]>([]);
   const [cartItems, setCartItems] = React.useState<number[]>([]);
 
   const [pageSize, setPageSize] = React.useState<number>(5);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
 
+  const [isFavourite, setIsFavourite] = React.useState<boolean>(false);
+  const [searchRequest, setSearchRequest] = React.useState<string>('');
+
   //message.success('Товар был добавлен в корзину');
-// при смене favourites и проставленной галочки не меняется содерджимое
-// при галочке на избранном не отображается последний элемент, с которым взаимодействовали(добавляли)
 
   React.useEffect(() => {
     let favFromLocal: string = localStorage.getItem('favourites');
@@ -42,18 +44,41 @@ export default () => {
   }, []);
 
   React.useEffect(() => {
-    localStorage.setItem('favourites', JSON.stringify(favourites));
-  }, [favourites]);
-
-  React.useEffect(() => {
-    request('https://fakestoreapi.com/products').then((res) =>
-      setProducts(res),
-    );
+    request('https://fakestoreapi.com/products').then((res) => {
+      setConstProducts(res);
+      setProducts(res);
+    });
   }, []);
 
   React.useEffect(() => {
-    console.log(products);
+    localStorage.setItem('favourites', JSON.stringify(favourites));
+    if (isFavourite) {
+      let filteredFavProducts = products.filter((p) =>
+        favourites.includes(p.id),
+      );
+      setProducts(filteredFavProducts);
+    }
+  }, [favourites]);
+
+  React.useEffect(() => {
+    console.log('efkjhewghj', products);
   }, [products]);
+
+  React.useEffect(() => {
+    if (searchRequest.trim() == '') {
+      setProducts(constProducts);
+      return;
+    }
+    let filteredProducts = products.filter((p) =>
+      p.title.toLowerCase().includes(searchRequest.toLowerCase()),
+    );
+    if (filteredProducts.length != 0) {
+      setProducts(filteredProducts);
+      return;
+    }
+    message.error('Ни одного подходящего предмета не было найдено.', 0.3);
+    setProducts(constProducts);
+  }, [searchRequest]);
 
   const containsFavourite = (id: number): boolean => {
     return favourites.includes(id);
@@ -80,48 +105,24 @@ export default () => {
       );
       return;
     }
-    request('https://fakestoreapi.com/products').then((res) =>
-      setProducts(res),
-    );
+    setProducts(constProducts);
   };
 
   const searchChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value.length != 0) {
-      console.log(e.target.value);
-      console.log(products);
-      /*console.log(products[0].title.toLowerCase().indexOf(e.target.value));*/
-      let filteredProducts = products.filter((p) => {
-        p.title.toLowerCase().indexOf(e.target.value) !== -1;
-        console.log(p.title.toLowerCase().indexOf(e.target.value));
-      });
-      if (filteredProducts.length != 0) {
-        setProducts(filteredProducts);
-        return;
-      }
-      message.error('Ни одного подходящего предмета не было найдено.');
-      request('https://fakestoreapi.com/products').then((res) =>
-        setProducts(res),
-      );
-      return;
-    }
-    request('https://fakestoreapi.com/products').then((res) =>
-      setProducts(res),
-    );
+    setSearchRequest(e.target.value);
   };
 
   const checkChangeHandler = (e: ChangeEventHandler<HTMLInputElement>) => {
-    if (e.target.checked) {
+    if (!isFavourite) {
+      setIsFavourite(!isFavourite);
       let filteredFavProducts = products.filter((p) =>
         favourites.includes(p.id),
       );
-      console.log(favourites);
-      console.log(filteredFavProducts);
       setProducts(filteredFavProducts);
       return;
     }
-    request('https://fakestoreapi.com/products').then((res) =>
-      setProducts(res),
-    );
+    setIsFavourite(!isFavourite);
+    setProducts(constProducts);
   };
 
   const onChange = (value: number | null) => {
@@ -161,12 +162,12 @@ export default () => {
           name="text"
           label="Поиск"
           placeholder="Я ищу..."
-          fieldProps={{ onChange: searchChangeHandler }}
+          fieldProps={{ onChange: searchChangeHandler, value: searchRequest }}
         />
         <ProFormCheckbox
           name="checkbox"
           label="Избранное"
-          fieldProps={{ onChange: checkChangeHandler }}
+          fieldProps={{ onChange: checkChangeHandler, checked: isFavourite }}
         />
       </Space>
       <Space
@@ -187,7 +188,7 @@ export default () => {
             .slice(
               (currentPage - 1) * pageSize,
               currentPage * pageSize > products.length
-                ? products.length - 1
+                ? products.length
                 : currentPage * pageSize,
             )
             .map((product) => {
