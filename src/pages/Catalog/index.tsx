@@ -21,7 +21,7 @@ import {
 } from '@ant-design/icons';
 import styles from './index.less';
 import request from 'umi-request';
-import { Product } from '../../../typings';
+import { Product, Option, ProductInCart } from '../../../typings';
 import React from 'react';
 import { history } from '@umijs/max';
 
@@ -29,13 +29,14 @@ export default () => {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [constProducts, setConstProducts] = React.useState<Product[]>([]);
   const [favourites, setFavourites] = React.useState<number[]>([]);
-  const [cartItems, setCartItems] = React.useState<number[]>([]);
-
   const [pageSize, setPageSize] = React.useState<number>(5);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
 
   const [isFavourite, setIsFavourite] = React.useState<boolean>(false);
   const [searchRequest, setSearchRequest] = React.useState<string>('');
+
+  const [cartItems, setCartItems] = React.useState<ProductInCart[]>([]);
+  const [cartItemsPage, setCartItemsPage] = React.useState<ProductInCart[]>([]);
 
   //message.success('Товар был добавлен в корзину');
 
@@ -43,13 +44,17 @@ export default () => {
     let favFromLocal: string = localStorage.getItem('favourites');
     let favParsed: number[] = JSON.parse(favFromLocal) as number[];
     setFavourites(favourites.length == 0 ? favParsed : favourites);
-  }, []);
 
-  React.useEffect(() => {
     request('https://fakestoreapi.com/products').then((res) => {
       setConstProducts(res);
       setProducts(res);
     });
+
+    for (let i = 1; i <= 20; i++) {
+      console.log('aaazzz', [...cartItems, { id: i, quantity: 0 }]);
+      setCartItems([...cartItems, { id: i, quantity: 0 }]);
+    }
+    console.log('wwewlkfjhghjkl;', cartItems);
   }, []);
 
   React.useEffect(() => {
@@ -61,6 +66,11 @@ export default () => {
       setProducts(filteredFavProducts);
     }
   }, [favourites]);
+
+  React.useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItemsPage));
+    console.log('qqqqqqqqqqqqqqqq', cartItemsPage);
+  }, [cartItemsPage]);
 
   React.useEffect(() => {
     console.log('efkjhewghj', products);
@@ -127,13 +137,81 @@ export default () => {
     setProducts(constProducts);
   };
 
-  const onChange = (value: number | null) => {
-    console.log('changed', value);
+  const sortHandler = (values) => {
+    let sortedProducts: Product[] = [...constProducts];
+    if (values) {
+      if (values[0] == 'alphabet') {
+        if (values[1] == 'ascending') {
+          sortedProducts = sortedProducts.sort((a, b) => {
+            if (a.title < b.title) {
+              return -1;
+            }
+            if (a.title > b.title) {
+              return 1;
+            }
+            return 0;
+          });
+        } else if (values[1] == 'descending') {
+          sortedProducts = sortedProducts.sort((a, b) => {
+            if (a.title > b.title) {
+              return -1;
+            }
+            if (a.title < b.title) {
+              return 1;
+            }
+            return 0;
+          });
+        }
+      } else if (values[0] == 'price') {
+        if (values[1] == 'ascending') {
+          sortedProducts = sortedProducts.sort((a, b) => a.price - b.price);
+        } else if (values[1] == 'descending') {
+          sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
+        }
+      }
+    }
+    setProducts(sortedProducts);
   };
+
+  const addProductToCart = (productId: number) => {
+    console.log('mu');
+    setCartItemsPage([...cartItemsPage, cartItemsPage[productId]]);
+  };
+
+  const sortOptions: Option[] = [
+    {
+      value: 'alphabet',
+      label: 'По алфавиту',
+      children: [
+        {
+          value: 'ascending',
+          label: 'По возрастанию',
+        },
+        {
+          value: 'descending',
+          label: 'По убыванию',
+        },
+      ],
+    },
+    {
+      value: 'price',
+      label: 'По цене',
+      children: [
+        {
+          value: 'ascending',
+          label: 'По возрастанию',
+        },
+        {
+          value: 'descending',
+          label: 'По убыванию',
+        },
+      ],
+    },
+  ];
 
   return (
     <>
-      <Space>
+      <Space style={{ display: 'flex', flexWrap: 'wrap' }}>
         <ProFormSelect
           name="select-multiple"
           style={{ width: '20rem' }}
@@ -162,6 +240,7 @@ export default () => {
         />
         <ProFormText
           name="text"
+          style={{ width: '20rem' }}
           label="Поиск"
           placeholder="Я ищу..."
           fieldProps={{ onChange: searchChangeHandler, value: searchRequest }}
@@ -172,9 +251,10 @@ export default () => {
           fieldProps={{ onChange: checkChangeHandler, checked: isFavourite }}
         />
         <Cascader
+          style={{ width: '20rem' }}
           options={sortOptions}
-          onChange={onChange}
-          placeholder="Please select"
+          onChange={sortHandler}
+          placeholder="Сортировать по..."
         />
       </Space>
       <Space
@@ -269,9 +349,9 @@ export default () => {
                         controls={true}
                         min={0}
                         defaultValue={0}
-                        onChange={onChange}
+                        onChange={(amount) => (cartItems[product.id] = amount)}
                       />
-                      <Button onClick={() => console.log('mu')}>
+                      <Button onClick={addProductToCart(product.id)}>
                         <ShoppingCartOutlined />
                       </Button>
                     </Space.Compact>

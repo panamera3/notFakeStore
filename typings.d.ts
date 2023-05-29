@@ -8,3 +8,14 @@ type Product = {
   description: string;
   image: string;
 };
+
+interface Option {
+  value: string | number;
+  label: string;
+  children?: Option[];
+}
+
+type ProductInCart = {
+  id: number,
+  quantity: number
+}

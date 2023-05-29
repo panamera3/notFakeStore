@@ -30,7 +30,7 @@ export default defineConfig({
     },
     {
       name: 'Корзина',
-      path: '/',
+      path: '/cart',
       component: './Cart',
     },
   ],
