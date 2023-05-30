@@ -23,23 +23,34 @@ export default () => {
   }, [items]);
 
   const decrease = (itemId: number) => {
-    console.log(itemId);
-    console.log('324e3ret', items);
-    items.find((item) => item.id == itemId).quantity -= 1;
-    console.log(
-      '34r7y349ikjoklijmiok',
-      items.find((item) => item.id == itemId),
-    );
+    let newItem = items.find((item) => item.id == itemId);
+    if (newItem.quantity >= 2) {
+      newItem.quantity -= 1;
+      console.log('wiufghj', newItem);
+
+      let newItems = [...items, newItem];
+      let uniqueItems = [
+        ...new Set(newItems.map((obj) => JSON.stringify(obj))),
+      ].map((str) => JSON.parse(str));
+      setItems(uniqueItems);
+      return;
+    }
+    deleteFromCart(itemId);
   };
 
   const increase = (itemId: number) => {
-    console.log(itemId);
-    items.find((item) => item.id == itemId).quantity += 1;
-    setItems(items);
+    let newItem = items.find((item) => item.id == itemId);
+    newItem.quantity += 1;
+    console.log('wiufghj', newItem);
+
+    let newItems = [...items, newItem];
+    let uniqueItems = [
+      ...new Set(newItems.map((obj) => JSON.stringify(obj))),
+    ].map((str) => JSON.parse(str));
+    setItems(uniqueItems);
   };
 
   const deleteFromCart = (itemId: number) => {
-    console.log(itemId);
     let newItems = items.filter((item) => item.id != itemId);
     setItems(newItems);
   };
@@ -49,7 +60,6 @@ export default () => {
       {items.length > 0 && (
         <Space direction="vertical">
           {items.map((item) => {
-            console.log('ew;lfkjh', item);
             return (
               <Space>
                 <Title level={5}>{item.title}</Title>

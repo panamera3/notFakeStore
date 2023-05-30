@@ -26,6 +26,7 @@ import React from 'react';
 import { history } from '@umijs/max';
 
 export default () => {
+  const { Title } = Typography;
   const [products, setProducts] = React.useState<Product[]>([]);
   const [constProducts, setConstProducts] = React.useState<Product[]>([]);
   const [favourites, setFavourites] = React.useState<number[]>([]);
@@ -50,7 +51,7 @@ export default () => {
 
     let newCartItems: ProductInCart[] = [];
     for (let i = 1; i <= 20; i++) {
-      let newCartItem: ProductInCart = { id: i, quantity: 0, title: "" };
+      let newCartItem: ProductInCart = { id: i, quantity: 1, title: '' };
       newCartItems = [...newCartItems, newCartItem];
     }
     setCartItems(newCartItems);
@@ -182,7 +183,7 @@ export default () => {
         id: productId,
         quantity: cartItems[productId].quantity,
         price: products[productId].price,
-        title: products[productId].title
+        title: products[productId].title,
       };
       newCartItem = newCartItemPage;
     }
@@ -271,6 +272,10 @@ export default () => {
           onChange={sortHandler}
           placeholder="Сортировать по..."
         />
+        <Title level={5}>
+          Количество товаров в корзине:{' '}
+          {cartItemsPage.reduce((total, item) => total + item.quantity, 0)}
+        </Title>
       </Space>
       <Space
         style={{
@@ -362,8 +367,8 @@ export default () => {
                     <Space.Compact>
                       <InputNumber
                         controls={true}
-                        min={0}
-                        defaultValue={0}
+                        min={1}
+                        defaultValue={1}
                         onChange={(amount) =>
                           (cartItems[product.id].quantity = amount)
                         }
