@@ -17,5 +17,7 @@ interface Option {
 
 type ProductInCart = {
   id: number,
-  quantity: number
+  quantity: number,
+  price: number,
+  title: string,
 }

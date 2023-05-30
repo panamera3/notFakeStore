@@ -38,8 +38,6 @@ export default () => {
   const [cartItems, setCartItems] = React.useState<ProductInCart[]>([]);
   const [cartItemsPage, setCartItemsPage] = React.useState<ProductInCart[]>([]);
 
-  //message.success('Товар был добавлен в корзину');
-
   React.useEffect(() => {
     let favFromLocal: string = localStorage.getItem('favourites');
     let favParsed: number[] = JSON.parse(favFromLocal) as number[];
@@ -50,11 +48,12 @@ export default () => {
       setProducts(res);
     });
 
+    let newCartItems: ProductInCart[] = [];
     for (let i = 1; i <= 20; i++) {
-      console.log('aaazzz', [...cartItems, { id: i, quantity: 0 }]);
-      setCartItems([...cartItems, { id: i, quantity: 0 }]);
+      let newCartItem: ProductInCart = { id: i, quantity: 0, title: "" };
+      newCartItems = [...newCartItems, newCartItem];
     }
-    console.log('wwewlkfjhghjkl;', cartItems);
+    setCartItems(newCartItems);
   }, []);
 
   React.useEffect(() => {
@@ -68,13 +67,12 @@ export default () => {
   }, [favourites]);
 
   React.useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItemsPage));
-    console.log('qqqqqqqqqqqqqqqq', cartItemsPage);
+    if (cartItemsPage.length > 0) {
+      localStorage.setItem('cartItems', JSON.stringify(cartItemsPage));
+      message.success('Товар был успешно добавлен в корзину');
+    }
+    console.log(cartItemsPage);
   }, [cartItemsPage]);
-
-  React.useEffect(() => {
-    console.log('efkjhewghj', products);
-  }, [products]);
 
   React.useEffect(() => {
     if (searchRequest.trim() == '') {
@@ -174,8 +172,25 @@ export default () => {
   };
 
   const addProductToCart = (productId: number) => {
-    console.log('mu');
-    setCartItemsPage([...cartItemsPage, cartItemsPage[productId]]);
+    let containedItem = cartItemsPage.find((item) => item.id == productId);
+    let newCartItem;
+    if (containedItem) {
+      containedItem.quantity = cartItems[productId].quantity;
+      newCartItem = containedItem;
+    } else {
+      let newCartItemPage: ProductInCart = {
+        id: productId,
+        quantity: cartItems[productId].quantity,
+        price: products[productId].price,
+        title: products[productId].title
+      };
+      newCartItem = newCartItemPage;
+    }
+    let newCartItemsPage = [...cartItemsPage, newCartItem];
+    let uniqueCartItemsPage = [
+      ...new Set(newCartItemsPage.map((obj) => JSON.stringify(obj))),
+    ].map((str) => JSON.parse(str));
+    setCartItemsPage(uniqueCartItemsPage);
   };
 
   const sortOptions: Option[] = [
@@ -349,9 +364,11 @@ export default () => {
                         controls={true}
                         min={0}
                         defaultValue={0}
-                        onChange={(amount) => (cartItems[product.id] = amount)}
+                        onChange={(amount) =>
+                          (cartItems[product.id].quantity = amount)
+                        }
                       />
-                      <Button onClick={addProductToCart(product.id)}>
+                      <Button onClick={() => addProductToCart(product.id)}>
                         <ShoppingCartOutlined />
                       </Button>
                     </Space.Compact>

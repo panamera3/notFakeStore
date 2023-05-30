@@ -1,9 +1,9 @@
 import { trim } from '@/utils/format';
 import { Typography } from 'antd';
 
-const { Title } = Typography;
-
 const HomePage: React.FC = () => {
+  const { Title } = Typography;
+  
   return (
     <>
       <Title>Интернет магазин</Title>
