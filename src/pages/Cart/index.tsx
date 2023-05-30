@@ -1,78 +1,68 @@
 import React from 'react';
-import { Product, ProductInCart } from '../../../typings';
+import { ProductInCart } from '../../../typings';
 import { Space, Button, Typography } from 'antd';
-import request from 'umi-request';
 
 export default () => {
   const { Title } = Typography;
-  const [products, setProducts] = React.useState<Product[]>([]);
   const [items, setItems] = React.useState<ProductInCart[]>([]);
 
   React.useEffect(() => {
     let cartItems = localStorage.getItem('cartItems');
     let itemsPage = cartItems ? JSON.parse(cartItems) : [];
     setItems(itemsPage);
-    request('https://fakestoreapi.com/products').then((res) => {
-      setProducts(res);
-    });
   }, []);
 
   React.useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(items));
-    console.log('MY-ITEMS', items);
   }, [items]);
 
+  const deleteFromCart = (itemId: number) => {
+    let newItems = items.filter((item) => item.id !== itemId);
+    setItems(newItems);
+  };
+
   const decrease = (itemId: number) => {
-    let newItem = items.find((item) => item.id == itemId);
+    let newItem: ProductInCart = items.find((item) => item.id === itemId);
     if (newItem.quantity >= 2) {
       newItem.quantity -= 1;
-      console.log('wiufghj', newItem);
 
-      let newItems = [...items, newItem];
-      let uniqueItems = [
+      let newItems: ProductInCart[] = [...items, newItem];
+      let uniqueItems: ProductInCart[] = [
         ...new Set(newItems.map((obj) => JSON.stringify(obj))),
       ].map((str) => JSON.parse(str));
       setItems(uniqueItems);
-      return;
+      return; 
     }
     deleteFromCart(itemId);
   };
 
   const increase = (itemId: number) => {
-    let newItem = items.find((item) => item.id == itemId);
+    let newItem: ProductInCart = items.find((item) => item.id === itemId);
     newItem.quantity += 1;
-    console.log('wiufghj', newItem);
 
-    let newItems = [...items, newItem];
-    let uniqueItems = [
+    let newItems: ProductInCart[] = [...items, newItem];
+    let uniqueItems: ProductInCart[] = [
       ...new Set(newItems.map((obj) => JSON.stringify(obj))),
     ].map((str) => JSON.parse(str));
     setItems(uniqueItems);
-  };
-
-  const deleteFromCart = (itemId: number) => {
-    let newItems = items.filter((item) => item.id != itemId);
-    setItems(newItems);
   };
 
   return (
     <Space direction="vertical">
       {items.length > 0 && (
         <Space direction="vertical">
-          {items.map((item) => {
-            return (
-              <Space>
-                <Title level={5}>{item.title}</Title>
-                <Button onClick={() => decrease(item.id)}>-</Button>
-                <p>{item.quantity}</p>
-                <Button onClick={() => increase(item.id)}>+</Button>
-                <p>{item.quantity * item.price}$</p>
-                <Button danger onClick={() => deleteFromCart(item.id)}>
-                  Удалить
-                </Button>
-              </Space>
-            );
-          })}
+          {items.map((item) => (
+            <Space key={item.id}>
+              <Title level={5}>{item.title}</Title>
+              <Button onClick={() => decrease(item.id)}>-</Button>
+              <p>{item.quantity}</p>
+              <Button onClick={() => increase(item.id)}>+</Button>
+              <p>{item.quantity * item.price}$</p>
+              <Button danger onClick={() => deleteFromCart(item.id)}>
+                Удалить
+              </Button>
+            </Space>
+          ))}
           <Title level={3}>
             Общая сумма покупки:{' '}
             {items.reduce(
@@ -83,7 +73,7 @@ export default () => {
           </Title>
         </Space>
       )}
-      {!items.length > 0 && <Title>Ваша корзина пуста.</Title>}
+      {!items.length && <Title>Ваша корзина пуста.</Title>}
     </Space>
   );
 };

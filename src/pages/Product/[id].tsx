@@ -1,8 +1,7 @@
 import React from 'react';
 import { request, useParams } from '@umijs/max';
 import { Product } from '../../../typings';
-import { Space } from 'antd';
-import { Typography } from 'antd';
+import { Space, Typography } from 'antd';
 
 const { Title } = Typography;
 

@@ -3,7 +3,6 @@ import {
   ProFormSelect,
   ProFormText,
   ProFormCheckbox,
-  ProFormRadio,
 } from '@ant-design/pro-components';
 import {
   Space,
@@ -19,7 +18,6 @@ import {
   StarFilled,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
-import styles from './index.less';
 import request from 'umi-request';
 import { Product, Option, ProductInCart } from '../../../typings';
 import React from 'react';
@@ -42,7 +40,7 @@ export default () => {
   React.useEffect(() => {
     let favFromLocal: string = localStorage.getItem('favourites');
     let favParsed: number[] = JSON.parse(favFromLocal) as number[];
-    setFavourites(favourites.length == 0 ? favParsed : favourites);
+    setFavourites(favourites.length === 0 ? favParsed : favourites);
 
     request('https://fakestoreapi.com/products').then((res) => {
       setConstProducts(res);
@@ -51,7 +49,12 @@ export default () => {
 
     let newCartItems: ProductInCart[] = [];
     for (let i = 1; i <= 20; i++) {
-      let newCartItem: ProductInCart = { id: i, quantity: 1, title: '' };
+      let newCartItem: ProductInCart = {
+        id: i,
+        quantity: 1,
+        title: '',
+        price: 0,
+      };
       newCartItems = [...newCartItems, newCartItem];
     }
     setCartItems(newCartItems);
@@ -72,18 +75,17 @@ export default () => {
       localStorage.setItem('cartItems', JSON.stringify(cartItemsPage));
       message.success('Товар был успешно добавлен в корзину');
     }
-    console.log(cartItemsPage);
   }, [cartItemsPage]);
 
   React.useEffect(() => {
-    if (searchRequest.trim() == '') {
+    if (searchRequest.trim() === '') {
       setProducts(constProducts);
       return;
     }
-    let filteredProducts = products.filter((p) =>
+    const filteredProducts = products.filter((p) =>
       p.title.toLowerCase().includes(searchRequest.toLowerCase()),
     );
-    if (filteredProducts.length != 0) {
+    if (filteredProducts.length !== 0) {
       setProducts(filteredProducts);
       return;
     }
@@ -97,14 +99,14 @@ export default () => {
 
   const setFavourite = (id: number): void => {
     if (favourites.includes(id)) {
-      setFavourites(favourites.filter((favourite) => favourite != id));
+      setFavourites(favourites.filter((favourite) => favourite !== id));
     } else {
       setFavourites([...favourites, id]);
     }
   };
 
-  const selectChangeHandler = (values: String[]) => {
-    if (values.length != 0) {
+  const selectChangeHandler = (values: string[]) => {
+    if (values.length !== 0) {
       let allProducts: Product[] = [];
       values.forEach((c) =>
         request(`https://fakestoreapi.com/products/category/${c}`).then(
@@ -119,11 +121,11 @@ export default () => {
     setProducts(constProducts);
   };
 
-  const searchChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const searchChangeHandler = (e) => {
     setSearchRequest(e.target.value);
   };
 
-  const checkChangeHandler = (e: ChangeEventHandler<HTMLInputElement>) => {
+  const checkChangeHandler = () => {
     if (!isFavourite) {
       setIsFavourite(!isFavourite);
       let filteredFavProducts = products.filter((p) =>
@@ -136,11 +138,11 @@ export default () => {
     setProducts(constProducts);
   };
 
-  const sortHandler = (values) => {
+  const sortHandler = (values: string[]) => {
     let sortedProducts: Product[] = [...constProducts];
     if (values) {
-      if (values[0] == 'alphabet') {
-        if (values[1] == 'ascending') {
+      if (values[0] === 'alphabet') {
+        if (values[1] === 'ascending') {
           sortedProducts = sortedProducts.sort((a, b) => {
             if (a.title < b.title) {
               return -1;
@@ -150,7 +152,7 @@ export default () => {
             }
             return 0;
           });
-        } else if (values[1] == 'descending') {
+        } else if (values[1] === 'descending') {
           sortedProducts = sortedProducts.sort((a, b) => {
             if (a.title > b.title) {
               return -1;
@@ -161,19 +163,19 @@ export default () => {
             return 0;
           });
         }
-      } else if (values[0] == 'price') {
-        if (values[1] == 'ascending') {
-          sortedProducts = sortedProducts.sort((a, b) => a.price - b.price);
-        } else if (values[1] == 'descending') {
+      } else if (values[0] === 'price') {
+        if (values[1] === 'ascending') {
+          sortedProducts = sortedProducts.sort((a: Product, b: Product) => a.price - b.price);
+        } else if (values[1] === 'descending') {
           sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
         }
-      }
+      }      
     }
     setProducts(sortedProducts);
   };
 
   const addProductToCart = (productId: number) => {
-    let containedItem = cartItemsPage.find((item) => item.id == productId);
+    let containedItem = cartItemsPage.find((item) => item.id === productId);
     let newCartItem;
     if (containedItem) {
       containedItem.quantity = cartItems[productId].quantity;
@@ -239,7 +241,7 @@ export default () => {
             let categs = (
               (await request(
                 'https://fakestoreapi.com/products/categories',
-              )) as String[]
+              )) as string[]
             ).map((item) => ({
               label: item,
               value: item,
@@ -301,6 +303,7 @@ export default () => {
             .map((product) => {
               return (
                 <ProCard
+                  key={product.id}
                   style={{
                     maxWidth: 300,
                     textAlign: 'center',
@@ -369,7 +372,7 @@ export default () => {
                         controls={true}
                         min={1}
                         defaultValue={1}
-                        onChange={(amount) =>
+                        onChange={(amount: number) =>
                           (cartItems[product.id].quantity = amount)
                         }
                       />

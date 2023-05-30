@@ -3,14 +3,14 @@ import '@umijs/max/typings';
 type Product = {
   id: number;
   title: string;
-  price: string;
+  price: number;
   category: string;
   description: string;
   image: string;
 };
 
 interface Option {
-  value: string | number;
+  value: string;
   label: string;
   children?: Option[];
 }
