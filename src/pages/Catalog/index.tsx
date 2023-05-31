@@ -64,7 +64,7 @@ export default () => {
   React.useEffect(() => {
     localStorage.setItem('favourites', JSON.stringify(favourites));
     if (isFavourite) {
-      let filteredFavProducts = products.filter((p) =>
+      const filteredFavProducts = products.filter((p) =>
         favourites.includes(p.id),
       );
       setProducts(filteredFavProducts);
@@ -129,7 +129,7 @@ export default () => {
   const checkChangeHandler = () => {
     if (!isFavourite) {
       setIsFavourite(!isFavourite);
-      let filteredFavProducts = products.filter((p) =>
+      const filteredFavProducts = products.filter((p) =>
         favourites.includes(p.id),
       );
       setProducts(filteredFavProducts);

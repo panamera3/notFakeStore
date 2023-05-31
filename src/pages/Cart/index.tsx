@@ -7,8 +7,8 @@ export default () => {
   const [items, setItems] = React.useState<ProductInCart[]>([]);
 
   React.useEffect(() => {
-    let cartItems = localStorage.getItem('cartItems');
-    let itemsPage = cartItems ? JSON.parse(cartItems) : [];
+    const cartItems = localStorage.getItem('cartItems');
+    const itemsPage = cartItems ? JSON.parse(cartItems) : [];
     setItems(itemsPage);
   }, []);
 
@@ -17,7 +17,7 @@ export default () => {
   }, [items]);
 
   const deleteFromCart = (itemId: number) => {
-    let newItems = items.filter((item) => item.id !== itemId);
+    const newItems = items.filter((item) => item.id !== itemId);
     setItems(newItems);
   };
 
@@ -26,8 +26,8 @@ export default () => {
     if (newItem.quantity >= 2) {
       newItem.quantity -= 1;
 
-      let newItems: ProductInCart[] = [...items, newItem];
-      let uniqueItems: ProductInCart[] = [
+      const newItems: ProductInCart[] = [...items, newItem];
+      const uniqueItems: ProductInCart[] = [
         ...new Set(newItems.map((obj) => JSON.stringify(obj))),
       ].map((str) => JSON.parse(str));
       setItems(uniqueItems);
@@ -40,8 +40,8 @@ export default () => {
     let newItem: ProductInCart = items.find((item) => item.id === itemId) as ProductInCart;
     newItem.quantity += 1;
 
-    let newItems: ProductInCart[] = [...items, newItem];
-    let uniqueItems: ProductInCart[] = [
+    const newItems: ProductInCart[] = [...items, newItem];
+    const uniqueItems: ProductInCart[] = [
       ...new Set(newItems.map((obj) => JSON.stringify(obj))),
     ].map((str) => JSON.parse(str));
     setItems(uniqueItems);
