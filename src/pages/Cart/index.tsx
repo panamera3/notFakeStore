@@ -22,7 +22,7 @@ export default () => {
   };
 
   const decrease = (itemId: number) => {
-    let newItem: ProductInCart = items.find((item) => item.id === itemId);
+    let newItem: ProductInCart = items.find((item) => item.id === itemId) as ProductInCart;
     if (newItem.quantity >= 2) {
       newItem.quantity -= 1;
 
@@ -37,7 +37,7 @@ export default () => {
   };
 
   const increase = (itemId: number) => {
-    let newItem: ProductInCart = items.find((item) => item.id === itemId);
+    let newItem: ProductInCart = items.find((item) => item.id === itemId) as ProductInCart;
     newItem.quantity += 1;
 
     let newItems: ProductInCart[] = [...items, newItem];

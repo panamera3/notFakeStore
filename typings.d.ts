@@ -10,8 +10,8 @@ type Product = {
 };
 
 interface Option {
-  value: string;
-  label: string;
+  value?: string | number | null | undefined;
+  label: ReactNode;
   children?: Option[];
 }
 
@@ -21,3 +21,5 @@ type ProductInCart = {
   price: number,
   title: string,
 }
+
+type SingleValueType = string;

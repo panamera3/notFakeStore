@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ProCard,
   ProFormSelect,
@@ -19,7 +20,7 @@ import {
   ShoppingCartOutlined,
 } from '@ant-design/icons';
 import request from 'umi-request';
-import { Product, Option, ProductInCart } from '../../../typings';
+import { Product, Option, ProductInCart, SingleValueType } from '../../../typings';
 import React from 'react';
 import { history } from '@umijs/max';
 
@@ -38,7 +39,7 @@ export default () => {
   const [cartItemsPage, setCartItemsPage] = React.useState<ProductInCart[]>([]);
 
   React.useEffect(() => {
-    let favFromLocal: string = localStorage.getItem('favourites');
+    let favFromLocal: string = localStorage.getItem('favourites') || '';
     let favParsed: number[] = JSON.parse(favFromLocal) as number[];
     setFavourites(favourites.length === 0 ? favParsed : favourites);
 
@@ -121,7 +122,8 @@ export default () => {
     setProducts(constProducts);
   };
 
-  const searchChangeHandler = (e) => {
+  const searchChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
     setSearchRequest(e.target.value);
   };
 
@@ -138,7 +140,7 @@ export default () => {
     setProducts(constProducts);
   };
 
-  const sortHandler = (values: string[]) => {
+  const sortHandler = (values: (string | number)[], _: Option[]) => {
     let sortedProducts: Product[] = [...constProducts];
     if (values) {
       if (values[0] === 'alphabet') {
@@ -165,11 +167,13 @@ export default () => {
         }
       } else if (values[0] === 'price') {
         if (values[1] === 'ascending') {
-          sortedProducts = sortedProducts.sort((a: Product, b: Product) => a.price - b.price);
+          sortedProducts = sortedProducts.sort(
+            (a: Product, b: Product) => a.price - b.price,
+          );
         } else if (values[1] === 'descending') {
           sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
         }
-      }      
+      }
     }
     setProducts(sortedProducts);
   };
@@ -236,6 +240,7 @@ export default () => {
           label="Категории: "
           fieldProps={{
             mode: 'multiple',
+            onChange: selectChangeHandler,
           }}
           request={async () => {
             let categs = (
@@ -254,14 +259,16 @@ export default () => {
               type: 'array',
             },
           ]}
-          onChange={selectChangeHandler}
         />
         <ProFormText
           name="text"
           style={{ width: '20rem' }}
           label="Поиск"
           placeholder="Я ищу..."
-          fieldProps={{ onChange: searchChangeHandler, value: searchRequest }}
+          fieldProps={{
+            onChange: searchChangeHandler,
+            value: searchRequest,
+          }}
         />
         <ProFormCheckbox
           name="checkbox"
@@ -372,8 +379,8 @@ export default () => {
                         controls={true}
                         min={1}
                         defaultValue={1}
-                        onChange={(amount: number) =>
-                          (cartItems[product.id].quantity = amount)
+                        onChange={(value) =>
+                          (cartItems[product.id].quantity = value as number)
                         }
                       />
                       <Button onClick={() => addProductToCart(product.id)}>
