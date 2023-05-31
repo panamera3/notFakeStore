@@ -21,5 +21,3 @@ type ProductInCart = {
   price: number,
   title: string,
 }
-
-type SingleValueType = string;

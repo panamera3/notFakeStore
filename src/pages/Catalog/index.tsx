@@ -20,7 +20,7 @@ import {
   ShoppingCartOutlined,
 } from '@ant-design/icons';
 import request from 'umi-request';
-import { Product, Option, ProductInCart, SingleValueType } from '../../../typings';
+import { Product, Option, ProductInCart } from '../../../typings';
 import React from 'react';
 import { history } from '@umijs/max';
 
@@ -123,7 +123,6 @@ export default () => {
   };
 
   const searchChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e);
     setSearchRequest(e.target.value);
   };
 
