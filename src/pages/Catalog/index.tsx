@@ -4,6 +4,7 @@ import {
   ProFormSelect,
   ProFormText,
   ProFormCheckbox,
+  RequestOptionsType,
 } from '@ant-design/pro-components';
 import {
   Space,
@@ -23,7 +24,6 @@ import request from 'umi-request';
 import { Product, Option, ProductInCart } from '../../../typings';
 import React from 'react';
 import { history } from '@umijs/max';
-import { DefaultOptionType } from 'antd/lib/select';
 
 export default () => {
   const { Title } = Typography;
@@ -243,7 +243,7 @@ export default () => {
             onChange: selectChangeHandler,
           }}
           request={async () => {
-            const categs: DefaultOptionType[] = (
+            const categs: RequestOptionsType[] = (
               (await request(
                 'https://fakestoreapi.com/products/categories',
               )) as string[]
