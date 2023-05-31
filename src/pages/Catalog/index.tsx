@@ -23,6 +23,7 @@ import request from 'umi-request';
 import { Product, Option, ProductInCart } from '../../../typings';
 import React from 'react';
 import { history } from '@umijs/max';
+import { DefaultOptionType } from 'antd/lib/select';
 
 export default () => {
   const { Title } = Typography;
@@ -39,8 +40,8 @@ export default () => {
   const [cartItemsPage, setCartItemsPage] = React.useState<ProductInCart[]>([]);
 
   React.useEffect(() => {
-    let favFromLocal: string = localStorage.getItem('favourites') || '';
-    let favParsed: number[] = JSON.parse(favFromLocal) as number[];
+    const favFromLocal: string = localStorage.getItem('favourites') || '';
+    const favParsed: number[] = JSON.parse(favFromLocal) as number[];
     setFavourites(favourites.length === 0 ? favParsed : favourites);
 
     request('https://fakestoreapi.com/products').then((res) => {
@@ -50,7 +51,7 @@ export default () => {
 
     let newCartItems: ProductInCart[] = [];
     for (let i = 1; i <= 20; i++) {
-      let newCartItem: ProductInCart = {
+      const newCartItem: ProductInCart = {
         id: i,
         quantity: 1,
         title: '',
@@ -178,13 +179,13 @@ export default () => {
   };
 
   const addProductToCart = (productId: number) => {
-    let containedItem = cartItemsPage.find((item) => item.id === productId);
+    const containedItem = cartItemsPage.find((item) => item.id === productId);
     let newCartItem;
     if (containedItem) {
       containedItem.quantity = cartItems[productId].quantity;
       newCartItem = containedItem;
     } else {
-      let newCartItemPage: ProductInCart = {
+      const newCartItemPage: ProductInCart = {
         id: productId,
         quantity: cartItems[productId].quantity,
         price: products[productId].price,
@@ -192,8 +193,8 @@ export default () => {
       };
       newCartItem = newCartItemPage;
     }
-    let newCartItemsPage = [...cartItemsPage, newCartItem];
-    let uniqueCartItemsPage = [
+    const newCartItemsPage = [...cartItemsPage, newCartItem];
+    const uniqueCartItemsPage = [
       ...new Set(newCartItemsPage.map((obj) => JSON.stringify(obj))),
     ].map((str) => JSON.parse(str));
     setCartItemsPage(uniqueCartItemsPage);
@@ -242,7 +243,7 @@ export default () => {
             onChange: selectChangeHandler,
           }}
           request={async () => {
-            let categs = (
+            const categs: DefaultOptionType[] = (
               (await request(
                 'https://fakestoreapi.com/products/categories',
               )) as string[]
