@@ -40,7 +40,7 @@ export default () => {
   const [cartItemsPage, setCartItemsPage] = React.useState<ProductInCart[]>([]);
 
   React.useEffect(() => {
-    const favFromLocal: string = localStorage.getItem('favourites') || '';
+    const favFromLocal: string = localStorage.getItem('favourites') || '[]';
     const favParsed: number[] = JSON.parse(favFromLocal) as number[];
     setFavourites(favourites.length === 0 ? favParsed : favourites);
 
