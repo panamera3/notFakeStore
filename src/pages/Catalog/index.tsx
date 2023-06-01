@@ -392,18 +392,21 @@ export default () => {
               );
             })}
         </Space>
-        <Space>
-          <Pagination
-            showSizeChanger
-            onChange={(page, pageSize) => {
-              setCurrentPage(page);
-              setPageSize(pageSize);
-            }}
-            defaultPageSize={pageSize}
-            current={currentPage}
-            total={products.length}
-          />
-        </Space>
+        {products.length !== 0 && (
+          <Space>
+            <Pagination
+              showSizeChanger
+              onChange={(page, pageSize) => {
+                setCurrentPage(page);
+                setPageSize(pageSize);
+              }}
+              defaultPageSize={pageSize}
+              current={currentPage}
+              total={products.length}
+              pageSizeOptions={[1, 2, 3, 4, 5, 10, 20]}
+            />
+          </Space>
+        )}
       </Space>
     </>
   );
